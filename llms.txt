@@ -1,0 +1,23 @@
+# Objets Trouvés du Campus
+
+> Plateforme Progressive Web App (PWA) de déclaration, partage et restitution des objets perdus et trouvés sur le campus universitaire.
+> Projet de Master 2 Informatique, Università di Corsica.
+
+## Contenu public
+- [Objets trouvés en Markdown](https://campus-objets-trouves.netlify.app/objets.md) : registre texte synchrone pour agents autonomes et crawlers.
+- [Page d'accueil de la PWA](https://campus-objets-trouves.netlify.app/) : catalogue interactif installable et utilisable hors ligne.
+
+## Fonctionnalités
+- Déclaration d'un objet trouvé : photo (caméra native ou fichier), catégorie, lieu de découverte, date et point de dépôt sécurisé (ex. accueil BU, loge gardien).
+- Consultation des fiches publiques détaillées (`/?item=<id>`).
+- Statut dynamique : un objet est soit actif (« Disponible au dépôt »), soit archivé/fermé (« Restitué au propriétaire »).
+- Partage natif via Web Share API (`navigator.share`) avec copie dans le presse-papiers en repli.
+- Prise de vue directe via l'API Caméra (`navigator.mediaDevices.getUserMedia`) avec demande de permission contextuelle.
+- Fonctionnement 100% hors ligne (Cache API, IndexedDB via idb).
+- Synchronisation différée (Outbox IndexedDB, Background Sync API et événement window 'online').
+- Détection et résolution des conflits de versions concurrentes par précondition HTTP `If-Match`.
+
+## Architecture Technique
+- Application 100% client Vanilla ES Modules + Service Worker manuel sans dépendance lourde de build.
+- Stratégies de cache : Stale While Revalidate (HTML Shell), Cache First (CSS, JS, images, polices, manifest), Network First avec repli IndexedDB pour l'API REST (`/api/items`).
+- Données gérées en IndexedDB avec deux stores : `items` (catalogue local répliqué) et `outbox` (file d'attente d'actions hors ligne).

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mode Hors Ligne — Objets Trouvés Campus</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+</head>
+<body class="offline-page">
+  <main class="offline-container">
+    <div class="offline-card">
+      <div class="offline-icon" aria-hidden="true">📡</div>
+      <h1>Connexion Internet indisponible</h1>
+      <p>Cette page n'a pas encore été mise en cache sur votre appareil. L'application principale et vos objets enregistrés restent toutefois accessibles hors ligne.</p>
+      
+      <div class="offline-actions">
+        <a href="/" class="btn btn-primary">Retour à l'accueil hors ligne</a>
+        <button onclick="window.location.reload()" class="btn btn-secondary">Réessayer</button>
+      </div>
+
+      <div class="offline-status">
+        <span class="status-dot"></span>
+        <span id="status-text">Vous êtes actuellement en mode hors ligne.</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.addEventListener('online', () => {
+      document.getElementById('status-text').textContent = 'Connexion rétablie ! Redirection...';
+      setTimeout(() => window.location.href = '/', 1200);
+    });
+  </script>
+</body>
+</html>

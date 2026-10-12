@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objets Trouvés du Campus — Déclarez, retrouvez et restituez</title>
+  <meta name="description" content="Plateforme collaborative installable et hors ligne pour déclarer et retrouver les objets perdus ou trouvés sur le campus universitaire. Università di Corsica." />
+  
+  <link rel="canonical" href="https://campus-objets-trouves.netlify.app/" />
+  <link rel="alternate" type="text/markdown" href="/objets.md" />
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Thème et iOS Safari -->
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="ObjetsCampus" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg" />
+
+  <!-- Open Graph / Réseaux sociaux -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Objets Trouvés du Campus — Service Universitaire" />
+  <meta property="og:description" content="Déclarez un objet trouvé avec photo, lieu, date et point de dépôt sécurisé. Fiches publiques et fonctionnement hors ligne." />
+  <meta property="og:image" content="https://campus-objets-trouves.netlify.app/icons/icon-512.png" />
+  <meta property="og:url" content="https://campus-objets-trouves.netlify.app/" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Objets Trouvés du Campus — Service Universitaire" />
+  <meta name="twitter:description" content="Déclarez un objet trouvé avec photo, lieu et point de dépôt sécurisé. PWA installable et hors ligne." />
+  <meta name="twitter:image" content="https://campus-objets-trouves.netlify.app/icons/icon-512.png" />
+
+  <!-- Données structurées Schema.org (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Objets Trouvés du Campus",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "url": "https://campus-objets-trouves.netlify.app/",
+    "description": "Plateforme progressive web app de déclaration et de restitution des objets trouvés sur le campus universitaire.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    }
+  }
+  </script>
+
+  <!-- Feuilles de style & librairie IndexedDB -->
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/idb@8/build/umd.js"></script>
+</head>
+<body>
+
+  <!-- Bannière de mise à jour Service Worker (§ 7 cheatsheet) -->
+  <div id="update-banner" class="system-banner update-banner" style="display: none;" role="alert">
+    <span>Une nouvelle version de l'application est disponible.</span>
+    <button id="btn-update">Mettre à jour</button>
+  </div>
+
+  <!-- Bannière d'état hors ligne -->
+  <div id="offline-banner" class="system-banner offline-banner" style="display: none;" role="status">
+    <span>📴 Mode hors ligne actif — Vos déclarations sont enregistrées localement et se synchroniseront au retour du réseau.</span>
+  </div>
+
+  <!-- Barre d'en-tête de l'application -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="/" class="brand" id="brand-link" aria-label="Retour à l'accueil Objets Trouvés Campus">
+        <img src="/icons/favicon.svg" alt="Logo" class="brand-icon">
+        <span class="brand-title">Objets Trouvés Campus</span>
+      </a>
+
+      <div class="header-actions">
+        <!-- Pastille de statut réseau -->
+        <span id="network-status" class="status-pill online">
+          <span class="status-dot"></span>
+          <span id="network-status-text">En ligne</span>
+        </span>
+
+        <!-- Badge d'attente de synchronisation -->
+        <span id="sync-badge" class="sync-badge" style="display: none;" title="Objets en attente de synchronisation">
+          ⏳ <span id="sync-count">0</span>
+        </span>
+
+        <!-- Bouton d'installation custom (§ 6 cheatsheet) -->
+        <button id="btn-install" class="btn btn-secondary btn-sm" style="display: none;" aria-label="Installer l'application">
+          📲 <span class="btn-text-desktop">Installer</span>
+        </button>
+
+        <!-- Bouton de notification push / locale -->
+        <button id="btn-notification" class="btn btn-outline btn-sm btn-icon-only" title="Activer les notifications de restitution" aria-label="Activer les notifications">
+          🔔
+        </button>
+
+        <!-- Bouton de déclaration -->
+        <button id="btn-open-declare" class="btn btn-primary btn-sm">
+          ➕ <span class="btn-text-desktop">Déclarer un objet</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenu Principal -->
+  <main class="app-main">
+    
+    <!-- Encart de présentation sémantique -->
+    <section class="hero-box">
+      <h1>Objets perdus & trouvés sur le campus</h1>
+      <p>Un objet a été trouvé ? Déclarez-le avec sa photo, la date, le lieu où vous l'avez découvert et l'endroit où vous l'avez déposé (accueil, loge, scolarité). Chaque objet dispose d'une fiche publique partageable qui passe en « Restitué » dès qu'il est récupéré.</p>
+    </section>
+
+    <!-- Zone de recherche et de filtres -->
+    <section class="controls-card" aria-label="Filtres et recherche">
+      <div class="search-bar">
+        <span aria-hidden="true">🔍</span>
+        <input type="search" id="search-input" placeholder="Rechercher par objet, lieu de découverte ou point de dépôt..." aria-label="Recherche d'objet">
+      </div>
+
+      <div class="filters-row">
+        <div class="filter-tabs" role="tablist">
+          <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">Tous les objets</button>
+          <button class="filter-tab" data-filter="active" role="tab" aria-selected="false">À récupérer</button>
+          <button class="filter-tab" data-filter="returned" role="tab" aria-selected="false">Restitués</button>
+        </div>
+
+        <select id="category-select" class="category-select" aria-label="Filtrer par catégorie">
+          <option value="all">Toutes les catégories</option>
+          <option value="Clés & Badges">Clés & Badges</option>
+          <option value="Électronique">Électronique</option>
+          <option value="Vêtements">Vêtements</option>
+          <option value="Livres & Cours">Livres & Cours</option>
+          <option value="Sacs & Portefeuilles">Sacs & Portefeuilles</option>
+          <option value="Vie quotidienne">Vie quotidienne</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Section du registre public -->
+    <section class="items-section">
+      <div class="section-header">
+        <h2>Registre public des objets trouvés</h2>
+        <span id="items-count" class="text-muted" style="font-size: 0.875rem;">3 objets répertoriés</span>
+      </div>
+
+      <!-- Liste publique avec contenu initial pour SEO / LLMs (§ 13 cheatsheet) -->
+      <ul id="items-list" class="items-grid">
+        
+        <!-- Graine 1 (data-seed) -->
+        <li class="item-card" data-seed="seed-1" data-id="seed-1">
+          <div class="card-img-wrapper">
+            <img src="/icons/icon-512.png" alt="Photo de Clés avec porte-clé bleu et badge CROUS" class="card-img" loading="lazy">
+            <span class="badge-status active">Disponible au dépôt</span>
+          </div>
+          <div class="card-body">
+            <span class="card-category">Clés & Badges</span>
+            <h3 class="card-title">Clés avec porte-clé bleu et badge CROUS</h3>
+            <div class="card-info">
+              <div class="info-line"><strong>Trouvé le :</strong> <span>12 octobre 2026</span></div>
+              <div class="info-line"><strong>Lieu :</strong> <span>BU Centrale, salle de lecture 2ème étage</span></div>
+              <div class="info-line"><strong>Déposé à :</strong> <span>Accueil de la Bibliothèque Universitaire (BU)</span></div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-secondary btn-sm btn-view-item" data-id="seed-1">Voir la fiche</button>
+            <button class="btn btn-outline btn-sm btn-share-item" data-id="seed-1" title="Partager cette fiche">Partager 🔗</button>
+          </div>
+        </li>
+
+        <!-- Graine 2 (data-seed) -->
+        <li class="item-card" data-seed="seed-2" data-id="seed-2">
+          <div class="card-img-wrapper">
+            <img src="/icons/icon-512.png" alt="Photo de Calculatrice graphique TI-84 Plus CE" class="card-img" loading="lazy">
+            <span class="badge-status active">Disponible au dépôt</span>
+          </div>
+          <div class="card-body">
+            <span class="card-category">Électronique</span>
+            <h3 class="card-title">Calculatrice graphique TI-84 Plus CE</h3>
+            <div class="card-info">
+              <div class="info-line"><strong>Trouvé le :</strong> <span>11 octobre 2026</span></div>
+              <div class="info-line"><strong>Lieu :</strong> <span>Amphi A — Bâtiment Sciences</span></div>
+              <div class="info-line"><strong>Déposé à :</strong> <span>Loge du gardien, hall principal Sciences</span></div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-secondary btn-sm btn-view-item" data-id="seed-2">Voir la fiche</button>
+            <button class="btn btn-outline btn-sm btn-share-item" data-id="seed-2" title="Partager cette fiche">Partager 🔗</button>
+          </div>
+        </li>
+
+        <!-- Graine 3 (data-seed) -->
+        <li class="item-card is-returned" data-seed="seed-3" data-id="seed-3">
+          <div class="card-img-wrapper">
+            <img src="/icons/icon-512.png" alt="Photo de Gourde isotherme inox noire 750ml" class="card-img" loading="lazy">
+            <span class="badge-status returned">Restitué au propriétaire</span>
+          </div>
+          <div class="card-body">
+            <span class="card-category">Vie quotidienne</span>
+            <h3 class="card-title">Gourde isotherme inox noire 750ml</h3>
+            <div class="card-info">
+              <div class="info-line"><strong>Trouvé le :</strong> <span>10 octobre 2026</span></div>
+              <div class="info-line"><strong>Lieu :</strong> <span>Cafétéria CROUS, terrasse extérieure</span></div>
+              <div class="info-line"><strong>Déposé à :</strong> <span>Comptoir cafétéria</span></div>
+              <div class="info-line"><strong>Restitué le :</strong> <span>11 octobre 2026</span></div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-secondary btn-sm btn-view-item" data-id="seed-3">Voir la fiche</button>
+            <button class="btn btn-outline btn-sm btn-share-item" data-id="seed-3" title="Partager cette fiche">Partager 🔗</button>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       Modale : Déclaration d'un objet trouvé (avec Caméra)
+       ======================================================================== -->
+  <div id="modal-declare" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="declare-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="declare-title">Déclarer un objet trouvé</h3>
+        <button type="button" class="btn-close" id="btn-close-declare" aria-label="Fermer la fenêtre">✕</button>
+      </div>
+
+      <form id="form-declare">
+        <div class="modal-content">
+          
+          <div class="form-group">
+            <label for="input-title">Intitulé de l'objet *</label>
+            <input type="text" id="input-title" required placeholder="Ex: Clés de voiture avec porte-clé rouge">
+          </div>
+
+          <div class="form-group">
+            <label for="select-category">Catégorie *</label>
+            <select id="select-category" required>
+              <option value="Clés & Badges">Clés & Badges</option>
+              <option value="Électronique">Électronique</option>
+              <option value="Vêtements">Vêtements</option>
+              <option value="Livres & Cours">Livres & Cours</option>
+              <option value="Sacs & Portefeuilles">Sacs & Portefeuilles</option>
+              <option value="Vie quotidienne">Vie quotidienne</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="input-date">Date et heure de découverte *</label>
+            <input type="datetime-local" id="input-date" required>
+          </div>
+
+          <div class="form-group">
+            <label for="input-location">Où l'objet a-t-il été trouvé ? *</label>
+            <input type="text" id="input-location" required placeholder="Ex: Bâtiment Sciences, Salle 104, 1er étage">
+          </div>
+
+          <div class="form-group">
+            <label for="input-deposit">Où l'objet est-il déposé ? (Lieu de récupération) *</label>
+            <input type="text" id="input-deposit" required placeholder="Ex: Loge du gardien hall principal Sciences">
+          </div>
+
+          <div class="form-group">
+            <label for="input-desc">Description complémentaire</label>
+            <textarea id="input-desc" rows="3" placeholder="Marque, couleur précise, signes particuliers..."></textarea>
+          </div>
+
+          <!-- Prise de photo (Capacité Caméra suggérée) -->
+          <div class="form-group">
+            <label>Photo de l'objet *</label>
+            <div class="photo-picker">
+              
+              <!-- Vue Prévisualisation si photo prise -->
+              <div id="photo-preview-box" class="photo-preview-container" style="display: none;">
+                <img id="photo-preview-img" alt="Aperçu de la photo de l'objet" class="photo-preview-img">
+                <button type="button" id="btn-retake-photo" class="btn btn-secondary btn-sm">Changer de photo</button>
+              </div>
+
+              <!-- Vue Choix / Prise Caméra -->
+              <div id="photo-buttons-box" class="photo-buttons-row">
+                <button type="button" id="btn-camera" class="btn btn-primary btn-sm">
+                  📸 Prendre une photo (Caméra)
+                </button>
+                <button type="button" id="btn-upload-file" class="btn btn-secondary btn-sm">
+                  📁 Choisir un fichier
+                </button>
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+                <input type="file" id="camera-capture-input" accept="image/*" capture="environment" style="display: none;">
+              </div>
+
+              <!-- Vue Streaming Caméra actif (getUserMedia) -->
+              <div id="camera-stream-box" class="camera-viewport-box" style="display: none;">
+                <video id="camera-video" class="camera-video" autoplay playsinline muted></video>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+                <div class="camera-controls-overlay">
+                  <button type="button" id="btn-capture-photo" class="btn btn-success btn-sm">Prendre la photo</button>
+                  <button type="button" id="btn-cancel-camera" class="btn btn-secondary btn-sm">Annuler</button>
+                </div>
+              </div>
+
+              <!-- Alerte si refus permission caméra -->
+              <div id="camera-error-msg" class="text-danger" style="display: none; font-size: 0.8125rem; text-align: center; color: var(--danger);">
+                ⚠️ Accès caméra refusé ou indisponible. Vous pouvez importer une photo depuis vos fichiers.
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-declare">Annuler</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-declare">Valider la déclaration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Modale : Fiche Publique de l'Objet (Page publique avec Web Share)
+       ======================================================================== -->
+  <div id="modal-item-detail" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="detail-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="detail-title">Fiche de l'objet</h3>
+        <button type="button" class="btn-close" id="btn-close-detail" aria-label="Fermer la fiche">✕</button>
+      </div>
+
+      <div class="modal-content">
+        <div id="detail-image-box" class="card-img-wrapper" style="height: 240px; border-radius: var(--radius-md);">
+          <img id="detail-img" src="" alt="Photo de l'objet" class="card-img">
+        </div>
+
+        <div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span id="detail-category" class="card-category">Catégorie</span>
+            <span id="detail-status-badge" class="badge-status active">Disponible</span>
+          </div>
+          <h2 id="detail-heading" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.5rem;">Titre de l'objet</h2>
+          <p id="detail-description" style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1rem;"></p>
+        </div>
+
+        <div class="card-info" style="font-size: 0.9rem; background-color: var(--bg-subtle); padding: 0.85rem; border-radius: var(--radius-md);">
+          <div class="info-line"><strong>Trouvé le :</strong> <span id="detail-date"></span></div>
+          <div class="info-line"><strong>Lieu où il a été trouvé :</strong> <span id="detail-location"></span></div>
+          <div class="info-line"><strong>Où il est déposé :</strong> <span id="detail-deposit"></span></div>
+          <div id="detail-returned-row" class="info-line" style="display: none;">
+            <strong>Restitué le :</strong> <span id="detail-returned-date" style="color: var(--success); font-weight: bold;"></span>
+          </div>
+        </div>
+
+        <!-- Section Deep-link / URL publique -->
+        <div style="font-size: 0.8125rem; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; background: var(--bg-subtle); padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);">
+          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" id="detail-public-url">https://campus-objets-trouves.netlify.app/?item=...</span>
+          <button type="button" class="btn btn-outline btn-sm" id="btn-copy-link" title="Copier le lien direct">Copier</button>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <!-- Bouton Partager (Web Share API suggérée) -->
+        <button type="button" class="btn btn-secondary" id="btn-share-detail">
+          🔗 Partager la fiche
+        </button>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <!-- Bouton de restitution -->
+          <button type="button" class="btn btn-success" id="btn-mark-returned">
+            ✅ Marquer comme restitué
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-close-detail-footer">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Modale : Résolution de Conflit de Concurrence (§ 11 cheatsheet)
+       ======================================================================== -->
+  <div id="modal-conflict" class="modal-backdrop" aria-hidden="true" role="dialog" aria-labelledby="conflict-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="conflict-title">⚠️ Conflit de version détecté (412)</h3>
+      </div>
+      <div class="modal-content">
+        <p>Cet objet a été modifié ou marqué comme restitué par un autre utilisateur ou appareil pendant que vous étiez hors ligne.</p>
+        <div style="background-color: var(--warning-bg); color: var(--warning-text); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.875rem;">
+          <strong>Version du serveur :</strong> <span id="conflict-server-info"></span>
+        </div>
+        <p style="font-size: 0.875rem;">Que souhaitez-vous faire ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-conflict-server">Prendre la version du serveur</button>
+        <button type="button" class="btn btn-primary" id="btn-conflict-mine">Garder ma version locale</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conteneur des Toasts -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Script Principal de l'Application -->
+  <script type="module" src="/app.js"></script>
+
+</body>
+</html>

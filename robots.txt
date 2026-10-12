@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Crawlers d'IA : une décision par robot, avec sa raison
+User-agent: GPTBot
+Allow: /            # Permet à OpenAI d'indexer les objets déclarés pour répondre aux étudiants cherchant un objet perdu
+
+User-agent: ClaudeBot
+Allow: /            # Permet à Claude de consulter le registre public des objets trouvés pour orienter les usagers
+
+User-agent: Google-Extended
+Disallow: /         # Empêche l'utilisation pour l'entraînement générique des modèles de fondation sans affecter l'indexation de recherche Google
+
+Sitemap: https://campus-objets-trouves.netlify.app/sitemap.xml
+# llms.txt : https://campus-objets-trouves.netlify.app/llms.txt

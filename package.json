@@ -1,0 +1,24 @@
+{
+  "name": "pwa-campus-objets-trouves",
+  "version": "1.0.0",
+  "description": "Progressive Web App pour les objets perdus et trouvés sur le campus universitaire (M2 Informatique, Università di Corsica)",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "serve": "npx serve -c serve.json .",
+    "test": "node test-seo.mjs",
+    "test:seo": "node test-seo.mjs"
+  },
+  "keywords": [
+    "pwa",
+    "progressive-web-app",
+    "service-worker",
+    "indexeddb",
+    "web-share",
+    "camera-api",
+    "campus"
+  ],
+  "author": "M2 Informatique — Università di Corsica",
+  "license": "MIT"
+}
