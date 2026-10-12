@@ -1,6 +1,6 @@
 // sw.js — Service Worker pour "Objets Trouvés du Campus"
 // Versionnage strict du cache (incrémenter pour chaque nouvelle version)
-const CACHE_NAME = "campus-lost-found-v3";
+const CACHE_NAME = "campus-lost-found-v4";
 
 // App Shell pré-mis en cache à l'installation
 const STATIC_ASSETS = [
