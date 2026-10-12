@@ -12,7 +12,7 @@
   - Où le récupérer (déposé à) : Accueil de la Bibliothèque Universitaire (BU)
   - Catégorie : Clés & Badges
   - Statut : Disponible au dépôt
-  - Fiche publique : https://campus-objets-trouves.netlify.app/?item=seed-1
+  - Fiche publique : https://timely-hamster-5836fc.netlify.app/?item=seed-1
 
 - **Calculatrice graphique TI-84 Plus CE**
   - Identifiant : `seed-2`
@@ -21,7 +21,7 @@
   - Où le récupérer (déposé à) : Loge du gardien, hall principal Sciences
   - Catégorie : Électronique
   - Statut : Disponible au dépôt
-  - Fiche publique : https://campus-objets-trouves.netlify.app/?item=seed-2
+  - Fiche publique : https://timely-hamster-5836fc.netlify.app/?item=seed-2
 
 ## Objets restitués récemment
 
@@ -33,4 +33,4 @@
   - Où il était déposé : Comptoir cafétéria
   - Catégorie : Vie quotidienne
   - Statut : Restitué au propriétaire
-  - Fiche publique : https://campus-objets-trouves.netlify.app/?item=seed-3
+  - Fiche publique : https://timely-hamster-5836fc.netlify.app/?item=seed-3

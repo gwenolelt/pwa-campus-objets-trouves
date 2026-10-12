@@ -1,8 +1,8 @@
 # 📍 Objets Trouvés du Campus — Progressive Web App (PWA)
 
-[![PWA Ready](https://img.shields.io/badge/PWA-Installable-blue.svg)](https://campus-objets-trouves.netlify.app/)
-[![Offline First](https://img.shields.io/badge/Offline-IndexedDB%20%2B%20SW-green.svg)](https://campus-objets-trouves.netlify.app/)
-[![SEO Score](https://img.shields.io/badge/Lighthouse%20SEO-100-success.svg)](https://campus-objets-trouves.netlify.app/)
+[![PWA Ready](https://img.shields.io/badge/PWA-Installable-blue.svg)](https://timely-hamster-5836fc.netlify.app/)
+[![Offline First](https://img.shields.io/badge/Offline-IndexedDB%20%2B%20SW-green.svg)](https://timely-hamster-5836fc.netlify.app/)
+[![SEO Score](https://img.shields.io/badge/Lighthouse%20SEO-100-success.svg)](https://timely-hamster-5836fc.netlify.app/)
 
 Projet de **Progressive Web App complète** réalisé dans le cadre du cours de Master 2 Informatique à l'**Università di Corsica**.
 

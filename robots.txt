@@ -11,5 +11,5 @@ Allow: /            # Permet à Claude de consulter le registre public des objet
 User-agent: Google-Extended
 Disallow: /         # Empêche l'utilisation pour l'entraînement générique des modèles de fondation sans affecter l'indexation de recherche Google
 
-Sitemap: https://campus-objets-trouves.netlify.app/sitemap.xml
-# llms.txt : https://campus-objets-trouves.netlify.app/llms.txt
+Sitemap: https://timely-hamster-5836fc.netlify.app/sitemap.xml
+# llms.txt : https://timely-hamster-5836fc.netlify.app/llms.txt

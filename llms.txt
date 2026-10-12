@@ -4,8 +4,8 @@
 > Projet de Master 2 Informatique, Università di Corsica.
 
 ## Contenu public
-- [Objets trouvés en Markdown](https://campus-objets-trouves.netlify.app/objets.md) : registre texte synchrone pour agents autonomes et crawlers.
-- [Page d'accueil de la PWA](https://campus-objets-trouves.netlify.app/) : catalogue interactif installable et utilisable hors ligne.
+- [Objets trouvés en Markdown](https://timely-hamster-5836fc.netlify.app/objets.md) : registre texte synchrone pour agents autonomes et crawlers.
+- [Page d'accueil de la PWA](https://timely-hamster-5836fc.netlify.app/) : catalogue interactif installable et utilisable hors ligne.
 
 ## Fonctionnalités
 - Déclaration d'un objet trouvé : photo (caméra native ou fichier), catégorie, lieu de découverte, date et point de dépôt sécurisé (ex. accueil BU, loge gardien).
