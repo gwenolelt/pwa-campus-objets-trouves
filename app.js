@@ -393,14 +393,7 @@ async function resetCatalogData() {
   showToast("🧹 Données nettoyées : seuls les 3 objets officiels sont conservés !", "success");
 }
 
-const btnResetData = document.getElementById("btn-reset-data");
-if (btnResetData) {
-  btnResetData.addEventListener("click", async () => {
-    if (window.confirm("Voulez-vous nettoyer les données de l'application et restaurer les 3 objets officiels du sujet ?")) {
-      await resetCatalogData();
-    }
-  });
-}
+window.resetCatalogData = resetCatalogData;
 
 // --------------------------------------------------------------------------
 // 8. Rendu de la liste des objets (Sécurisé XSS via textContent & createElement)
