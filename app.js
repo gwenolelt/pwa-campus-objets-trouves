@@ -329,10 +329,75 @@ async function hydrateFromHTML() {
       for (const item of apiItems) {
         await db.put("items", { ...item, synced: true });
       }
+
+      // Aligner le catalogue local : supprimer les objets qui ne sont plus sur le serveur
+      const outboxItems = await db.getAll("outbox");
+      const outboxIds = new Set(outboxItems.map((o) => o.item?.id));
+      const serverIds = new Set(apiItems.map((i) => i.id));
+      const allLocal = await db.getAll("items");
+      for (const localItem of allLocal) {
+        if (!serverIds.has(localItem.id) && !outboxIds.has(localItem.id)) {
+          await db.delete("items", localItem.id);
+        }
+      }
     }
   } catch {
     // Mode hors ligne ou API statique : continue en toute transparence
   }
+}
+
+// Réinitialisation complète du catalogue (vider les données et restaurer les 3 objets officiels)
+async function resetCatalogData() {
+  const db = await dbPromise;
+  await db.clear("items");
+  await db.clear("outbox");
+  await updateSyncBadge();
+
+  // Importer les 3 graines officielles du HTML
+  const seedElements = document.querySelectorAll("#items-list [data-seed]");
+  for (const el of seedElements) {
+    const id = el.getAttribute("data-id") || el.getAttribute("data-seed");
+    const title = el.querySelector(".card-title")?.textContent.trim() || "";
+    const category = el.querySelector(".card-category")?.textContent.trim() || "Autre";
+    const statusBadge = el.querySelector(".badge-status");
+    const isReturned = el.classList.contains("is-returned") || statusBadge?.textContent.includes("Restitué");
+    
+    const infoSpans = el.querySelectorAll(".card-info span");
+    const dateFound = infoSpans[0]?.textContent.trim() || "12 octobre 2026";
+    const locationFound = infoSpans[1]?.textContent.trim() || "Campus";
+    const depositLocation = infoSpans[2]?.textContent.trim() || "Accueil central";
+    const dateReturned = isReturned ? (infoSpans[3]?.textContent.trim() || "11 octobre 2026") : null;
+
+    const item = {
+      id,
+      title,
+      category,
+      description: `Objet déclaré sur le campus. Retrouvez-le à l'adresse de dépôt indiquée.`,
+      dateFound,
+      locationFound,
+      depositLocation,
+      photo: "/icons/icon-512.png",
+      status: isReturned ? "returned" : "active",
+      dateReturned,
+      version: 1,
+      synced: true,
+      createdAt: Date.now() - (id === "seed-1" ? 0 : id === "seed-2" ? 86400000 : 172800000),
+    };
+
+    await db.put("items", item);
+  }
+
+  await renderItems();
+  showToast("🧹 Données nettoyées : seuls les 3 objets officiels sont conservés !", "success");
+}
+
+const btnResetData = document.getElementById("btn-reset-data");
+if (btnResetData) {
+  btnResetData.addEventListener("click", async () => {
+    if (window.confirm("Voulez-vous nettoyer les données de l'application et restaurer les 3 objets officiels du sujet ?")) {
+      await resetCatalogData();
+    }
+  });
 }
 
 // --------------------------------------------------------------------------

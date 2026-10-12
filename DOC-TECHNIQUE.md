@@ -70,8 +70,8 @@ flowchart TD
 
 | Ressource | Stratégie | Stockage | Pourquoi |
 |---|---|---|---|
-| **HTML Shell (`/`, `/index.html`)** | **Stale-While-Revalidate** (avec repli sur cache shell `ignoreSearch: true`) | Cache Storage (`campus-lost-found-v4`) | Chargement instantané au démarrage tout en garantissant la mise à jour discrète en arrière-plan. Support des URLs d'objets `/?item=id` hors ligne. |
-| **CSS, JS, Icônes, Fonts, CDN `idb`** | **Cache First** | Cache Storage (`campus-lost-found-v4`) | Ressources statiques immuables pour une exécution ultra-rapide sans latence réseau. |
+| **HTML Shell (`/`, `/index.html`)** | **Stale-While-Revalidate** (avec repli sur cache shell `ignoreSearch: true`) | Cache Storage (`campus-lost-found-v5`) | Chargement instantané au démarrage tout en garantissant la mise à jour discrète en arrière-plan. Support des URLs d'objets `/?item=id` hors ligne. |
+| **CSS, JS, Icônes, Fonts, CDN `idb`** | **Cache First** | Cache Storage (`campus-lost-found-v5`) | Ressources statiques immuables pour une exécution ultra-rapide sans latence réseau. |
 | **API `/api/items`** | **Network First** avec repli local | IndexedDB (`items`) & Cache API | Priorité aux dernières données du serveur lorsqu'on est connecté, avec bascule transparente sur la base IndexedDB locale en mode déconnecté. |
 | **Navigation orpheline** | **Fallback secours** | Cache Storage (`/offline.html`) | Affichage d'une page de secours claire si une ressource jamais mise en cache est demandée hors ligne. |
 
@@ -91,7 +91,7 @@ flowchart TD
 Dans une application où l'utilisateur peut être en train de cadrer une photo ou de saisir la description minutieuse d'un objet trouvé, forcer un rafraîchissement automatique (`skipWaiting()` brutal à l'installation) risquerait d'interrompre sa saisie et de réinitialiser le formulaire. La bannière non intrusive informe poliment l'usager qu'une nouvelle version est prête et lui permet de recharger quand il est disponible.
 
 ### Mécanisme
-1. Le Service Worker incrémente sa clé de cache (`const CACHE_NAME = "campus-lost-found-v4"`).
+1. Le Service Worker incrémente sa clé de cache (`const CACHE_NAME = "campus-lost-found-v5"`).
 2. À l'installation, il pré-met en cache les nouveaux assets sans appeler `self.skipWaiting()`.
 3. Dans `app.js`, l'événement `updatefound` détecte le nouveau worker à l'état `installed`.
 4. Une bannière `#update-banner` apparaît avec le bouton « Mettre à jour ».
