@@ -1,15 +1,42 @@
 User-agent: *
 Allow: /
 
-# Crawlers d'IA : une décision par robot, avec sa raison
+# Crawlers de recherche et d'agents IA (les 7 jetons du chapitre)
+
+# 1. GPTBot (entraînement des modèles OpenAI)
 User-agent: GPTBot
-Allow: /            # Permet à OpenAI d'indexer les objets déclarés pour répondre aux étudiants cherchant un objet perdu
+Allow: /
+# Raison : permet aux modèles GPT d'indexer les objets pour orienter les étudiants
 
+# 2. OAI-SearchBot (moteur de recherche ChatGPT Search)
+User-agent: OAI-SearchBot
+Allow: /
+# Raison : permet à ChatGPT Search de citer et lier la fiche publique de l'objet trouvé
+
+# 3. ClaudeBot (crawler d'Anthropic)
 User-agent: ClaudeBot
-Allow: /            # Permet à Claude de consulter le registre public des objets trouvés pour orienter les usagers
+Allow: /
+# Raison : permet aux assistants Claude d'indexer le registre d'objets du campus
 
+# 4. Claude-SearchBot (moteur de recherche d'Anthropic)
+User-agent: Claude-SearchBot
+Allow: /
+# Raison : permet la recherche en temps réel d'objets trouvés pour les usagers
+
+# 5. PerplexityBot (moteur de recherche IA conversationnel)
+User-agent: PerplexityBot
+Allow: /
+# Raison : permet à Perplexity de référencer le registre public du campus
+
+# 6. CCBot (Common Crawl)
+User-agent: CCBot
+Allow: /
+# Raison : archive ouverte pour la découvrabilité du service universitaire
+
+# 7. Google-Extended (entraînement des modèles Gemini)
 User-agent: Google-Extended
-Disallow: /         # Empêche l'utilisation pour l'entraînement générique des modèles de fondation sans affecter l'indexation de recherche Google
+Disallow: /
+# Raison : refus de l'entraînement des modèles de fondation sans affecter la recherche Google standard
 
 Sitemap: https://timely-hamster-5836fc.netlify.app/sitemap.xml
 # llms.txt : https://timely-hamster-5836fc.netlify.app/llms.txt

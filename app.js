@@ -292,6 +292,7 @@ async function hydrateFromHTML() {
       const id = el.getAttribute("data-id") || el.getAttribute("data-seed");
       const title = el.querySelector(".card-title")?.textContent.trim() || "";
       const category = el.querySelector(".card-category")?.textContent.trim() || "Autre";
+      const description = el.querySelector(".card-desc")?.textContent.trim() || `Objet déclaré sur le campus. Retrouvez-le à l'adresse de dépôt indiquée.`;
       const statusBadge = el.querySelector(".badge-status");
       const isReturned = el.classList.contains("is-returned") || statusBadge?.textContent.includes("Restitué");
       
@@ -305,7 +306,7 @@ async function hydrateFromHTML() {
         id,
         title,
         category,
-        description: `Objet déclaré sur le campus. Retrouvez-le à l'adresse de dépôt indiquée.`,
+        description,
         dateFound,
         locationFound,
         depositLocation,
@@ -359,6 +360,7 @@ async function resetCatalogData() {
     const id = el.getAttribute("data-id") || el.getAttribute("data-seed");
     const title = el.querySelector(".card-title")?.textContent.trim() || "";
     const category = el.querySelector(".card-category")?.textContent.trim() || "Autre";
+    const description = el.querySelector(".card-desc")?.textContent.trim() || `Objet déclaré sur le campus. Retrouvez-le à l'adresse de dépôt indiquée.`;
     const statusBadge = el.querySelector(".badge-status");
     const isReturned = el.classList.contains("is-returned") || statusBadge?.textContent.includes("Restitué");
     
@@ -372,7 +374,7 @@ async function resetCatalogData() {
       id,
       title,
       category,
-      description: `Objet déclaré sur le campus. Retrouvez-le à l'adresse de dépôt indiquée.`,
+      description,
       dateFound,
       locationFound,
       depositLocation,
@@ -501,6 +503,13 @@ async function renderItems() {
       titleH3.className = "card-title";
       titleH3.textContent = item.title;
       cardBody.appendChild(titleH3);
+
+      if (item.description) {
+        const descP = document.createElement("p");
+        descP.className = "card-desc";
+        descP.textContent = item.description;
+        cardBody.appendChild(descP);
+      }
 
       const cardInfo = document.createElement("div");
       cardInfo.className = "card-info";
