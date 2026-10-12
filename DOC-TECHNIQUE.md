@@ -37,7 +37,7 @@ Sur un campus étendu (amphis, bibliothèques, cafétérias, laboratoires), les 
 - **Front-end** : Vanilla JavaScript (ES Modules modernes), HTML5 sémantique, CSS3 moderne mobile-first (sans framework ni bundler lourd, zéro overhead d'exécution).
 - **Service Worker** : Service Worker manuel codé sur mesure sans abstraction Workbox, pour un contrôle total sur le cache, le routage fin et le cycle de vie.
 - **Stockage client** : `IndexedDB` exploité via la bibliothèque légère `idb` (v8) chargée depuis un CDN et mise en cache.
-- **Serveur & API** : Serveur HTTP natif Node.js (`server.mjs`) fournissant l'API REST `/api/items` et l'évaluation des préconditions `If-Match` ; déploiement statique compatible Netlify / Vercel avec fichier `_headers` et `serve.json`.
+- **Serveur & API** : Serveur HTTP natif Node.js (`server.mjs`) en local et **fonction serverless Netlify** (`netlify/functions/items.mjs`) en production fournissant l'API REST `/api/items` et l'évaluation des préconditions `If-Match` ; déploiement automatisé avec `netlify.toml`, `_headers` et `serve.json`.
 
 ### Arborescence fonctionnelle & Flux de données
 
@@ -47,7 +47,7 @@ flowchart TD
     SW["Service Worker (sw.js)"]
     Cache["Cache Storage (App Shell & Assets)"]
     IDB[("IndexedDB (stores: items & outbox)")]
-    API["Serveur API (/api/items)"]
+    API["Serveur API (/api/items - Node.js / Netlify Function)"]
 
     User -->|"1. Lecture / Écriture locale"| IDB
     User -->|"2. Requêtes réseau"| SW
@@ -58,8 +58,9 @@ flowchart TD
 ```
 
 ### Hébergement & Pipeline
-- Déploiement automatisé sur **Netlify** (ou Vercel) connecté au dépôt Git.
-- En-têtes HTTP de sécurité et directive `X-Robots-Tag: noindex` sur les fichiers `.md` configurés via le fichier `_headers`.
+- Déploiement automatisé sur **Netlify** connecté au dépôt GitHub (`gwenolelt/pwa-campus-objets-trouves`).
+- Fonction serverless (`netlify/functions/items.mjs`) exécutée automatiquement pour l'API REST.
+- En-têtes HTTP de sécurité et directive `X-Robots-Tag: noindex` sur les fichiers `.md` configurés via `_headers` et `netlify.toml`.
 
 ---
 
@@ -69,8 +70,8 @@ flowchart TD
 
 | Ressource | Stratégie | Stockage | Pourquoi |
 |---|---|---|---|
-| **HTML Shell (`/`, `/index.html`)** | **Stale-While-Revalidate** (avec repli sur cache shell `ignoreSearch: true`) | Cache Storage (`campus-lost-found-v1`) | Chargement instantané au démarrage tout en garantissant la mise à jour discrète en arrière-plan. Support des URLs d'objets `/?item=id` hors ligne. |
-| **CSS, JS, Icônes, Fonts, CDN `idb`** | **Cache First** | Cache Storage (`campus-lost-found-v1`) | Ressources statiques immuables pour une exécution ultra-rapide sans latence réseau. |
+| **HTML Shell (`/`, `/index.html`)** | **Stale-While-Revalidate** (avec repli sur cache shell `ignoreSearch: true`) | Cache Storage (`campus-lost-found-v4`) | Chargement instantané au démarrage tout en garantissant la mise à jour discrète en arrière-plan. Support des URLs d'objets `/?item=id` hors ligne. |
+| **CSS, JS, Icônes, Fonts, CDN `idb`** | **Cache First** | Cache Storage (`campus-lost-found-v4`) | Ressources statiques immuables pour une exécution ultra-rapide sans latence réseau. |
 | **API `/api/items`** | **Network First** avec repli local | IndexedDB (`items`) & Cache API | Priorité aux dernières données du serveur lorsqu'on est connecté, avec bascule transparente sur la base IndexedDB locale en mode déconnecté. |
 | **Navigation orpheline** | **Fallback secours** | Cache Storage (`/offline.html`) | Affichage d'une page de secours claire si une ressource jamais mise en cache est demandée hors ligne. |
 
@@ -90,7 +91,7 @@ flowchart TD
 Dans une application où l'utilisateur peut être en train de cadrer une photo ou de saisir la description minutieuse d'un objet trouvé, forcer un rafraîchissement automatique (`skipWaiting()` brutal à l'installation) risquerait d'interrompre sa saisie et de réinitialiser le formulaire. La bannière non intrusive informe poliment l'usager qu'une nouvelle version est prête et lui permet de recharger quand il est disponible.
 
 ### Mécanisme
-1. Le Service Worker incrémente sa clé de cache (`const CACHE_NAME = "campus-lost-found-v1"`).
+1. Le Service Worker incrémente sa clé de cache (`const CACHE_NAME = "campus-lost-found-v4"`).
 2. À l'installation, il pré-met en cache les nouveaux assets sans appeler `self.skipWaiting()`.
 3. Dans `app.js`, l'événement `updatefound` détecte le nouveau worker à l'état `installed`.
 4. Une bannière `#update-banner` apparaît avec le bouton « Mettre à jour ».
@@ -194,23 +195,23 @@ Exécutées via la suite de tests `npm run test:seo` :
 
 1. **Contenu dans le HTML brut** :
    ```bash
-   curl -s -A "GPTBot" http://localhost:3000/ | grep -c "<li[ >]"
-   # Résultat : 3 (les 3 objets data-seed initiaux sont immédiatement présents)
+   curl -s -A "GPTBot" https://timely-hamster-5836fc.netlify.app/ | grep -c "<li[ >]"
+   # Résultat : 3 (les 3 objets data-seed initiaux sont immédiatement présents dans le HTML)
    ```
 2. **Jumelle Markdown accessible** :
    ```bash
-   curl -s -A "ClaudeBot" http://localhost:3000/objets.md
+   curl -s -A "ClaudeBot" https://timely-hamster-5836fc.netlify.app/objets.md
    # Résultat : 200 OK, Markdown complet renvoyé
    ```
 3. **Type MIME et noindex de la jumelle** :
    ```bash
-   curl -sI http://localhost:3000/objets.md | grep -iE "content-type|x-robots"
+   curl -sI https://timely-hamster-5836fc.netlify.app/objets.md | grep -iE "content-type|x-robots"
    # Content-Type: text/markdown; charset=utf-8
    # X-Robots-Tag: noindex
    ```
 4. **Pas de négociation de contenu indésirable sur `/`** :
    ```bash
-   curl -sD - -o /dev/null -H "Accept: text/markdown" http://localhost:3000/
+   curl -sD - -o /dev/null -H "Accept: text/markdown" https://timely-hamster-5836fc.netlify.app/
    # Content-Type: text/html; charset=utf-8
    ```
 
