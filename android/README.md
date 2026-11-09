@@ -9,8 +9,8 @@
 
 | Ressource | Lien d'accès |
 | :--- | :--- |
-| 🎥 **Vidéo de démonstration** | [**Voir la démo sur YouTube (`https://youtu.be/HBkg435O5ew`)**](https://youtu.be/HBkg435O5ew) |
-| 📦 **APK (Release GitHub)** | [**Télécharger l'APK depuis GitHub Releases**](https://github.com/gwenolelt/pwa-campus-objets-trouves-android/releases/latest) *(ou sur le [dépôt principal](https://github.com/gwenolelt/pwa-campus-objets-trouves/releases/latest))* |
+| 🎥 **Vidéo de démonstration** | [**Voir la démo sur YouTube (`https://youtu.be/p1Cu-PMlUpk`)**](https://youtu.be/p1Cu-PMlUpk) |
+| 📦 **APK (Release GitHub)** | [**Télécharger `app-release.apk` (GitHub Release v1.0.0)**](https://github.com/gwenolelt/pwa-campus-objets-trouves-android/releases/download/v1.0.0/app-release.apk) *(page des [Releases](https://github.com/gwenolelt/pwa-campus-objets-trouves-android/releases/latest) / [dépôt principal](https://github.com/gwenolelt/pwa-campus-objets-trouves/releases/latest))* |
 | 🌐 **PWA en production (Backend & App Links)** | [`https://timely-hamster-5836fc.netlify.app/`](https://timely-hamster-5836fc.netlify.app/) |
 
 ---
