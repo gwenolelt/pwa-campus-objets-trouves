@@ -117,12 +117,15 @@ class ItemsViewModel(
         .map { list -> list.count { it.status == ItemEntity.STATUS_RETURNED } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
 
-    // --- Parametres DataStore (Token FCM & Consentement Analytics RGPD) ---
+    // --- Parametres DataStore (Token FCM, Consentement Analytics RGPD & Umami Website ID) ---
     val fcmToken: StateFlow<String?> = settings.fcmToken
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val analyticsConsent: StateFlow<Boolean?> = settings.analyticsConsent
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    val umamiWebsiteId: StateFlow<String> = settings.umamiWebsiteId
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
     // --- Etats UI transitoires ---
     private val _isSyncing = MutableStateFlow(false)
@@ -139,6 +142,7 @@ class ItemsViewModel(
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             _isOnline.value = true
+            analytics.flushUmamiNow()
         }
 
         override fun onLost(network: Network) {
@@ -415,6 +419,16 @@ class ItemsViewModel(
         showMessage(
             if (granted) "Mesure d'audience anonyme activée" else "Mesure d'audience désactivée (RGPD)"
         )
+    }
+
+    fun saveUmamiWebsiteId(websiteId: String) = viewModelScope.launch {
+        settings.saveUmamiConfig(websiteId)
+        if (websiteId.isNotBlank()) {
+            analytics.logScreenView(AnalyticsTracker.SCREEN_ITEMS_LIST, "ItemsListScreen")
+            showMessage("🌿 Umami configuré ! Événement de test envoyé à cloud.umami.is")
+        } else {
+            showMessage("Umami désactivé")
+        }
     }
 
     fun sendTestNotification(context: Context) {

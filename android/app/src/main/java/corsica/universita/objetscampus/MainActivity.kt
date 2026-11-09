@@ -168,6 +168,7 @@ private fun CampusRootApp(
     val categoryFilter by viewModel.categoryFilter.collectAsStateWithLifecycle()
     val fcmToken by viewModel.fcmToken.collectAsStateWithLifecycle()
     val analyticsConsent by viewModel.analyticsConsent.collectAsStateWithLifecycle()
+    val umamiWebsiteId by viewModel.umamiWebsiteId.collectAsStateWithLifecycle()
     val conflictState by viewModel.conflictState.collectAsStateWithLifecycle()
     val snackbarMessage by viewModel.snackbarMessage.collectAsStateWithLifecycle()
 
@@ -257,6 +258,7 @@ private fun CampusRootApp(
                         categoryFilter = categoryFilter,
                         fcmToken = fcmToken,
                         analyticsConsent = analyticsConsent,
+                        umamiWebsiteId = umamiWebsiteId,
                         photoStore = viewModel.repository.photos,
                         onSearchQueryChange = viewModel::onSearchQueryChange,
                         onStatusFilterChange = viewModel::onStatusFilterChange,
@@ -267,6 +269,7 @@ private fun CampusRootApp(
                         onScanBarcodeClick = { heroCameraPermission.request() },
                         onManualSync = viewModel::manualSync,
                         onSetAnalyticsConsent = viewModel::setAnalyticsConsent,
+                        onSaveUmamiWebsiteId = viewModel::saveUmamiWebsiteId,
                         onSendTestNotification = {
                             viewModel.sendTestNotification(navController.context)
                         },

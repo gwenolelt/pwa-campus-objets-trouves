@@ -100,6 +100,7 @@ fun ItemsListScreen(
     categoryFilter: String,
     fcmToken: String?,
     analyticsConsent: Boolean?,
+    umamiWebsiteId: String,
     photoStore: PhotoStore,
     onSearchQueryChange: (String) -> Unit,
     onStatusFilterChange: (StatusFilter) -> Unit,
@@ -110,6 +111,7 @@ fun ItemsListScreen(
     onScanBarcodeClick: () -> Unit,
     onManualSync: () -> Unit,
     onSetAnalyticsConsent: (Boolean) -> Unit,
+    onSaveUmamiWebsiteId: (String) -> Unit,
     onSendTestNotification: () -> Unit,
     onShowMessage: (String) -> Unit
 ) {
@@ -135,8 +137,10 @@ fun ItemsListScreen(
         DiagnosticsAndFcmDialog(
             fcmToken = fcmToken,
             analyticsConsent = analyticsConsent == true,
+            umamiWebsiteId = umamiWebsiteId,
             notifStatus = notifPermission.status,
             onToggleAnalytics = onSetAnalyticsConsent,
+            onSaveUmamiWebsiteId = onSaveUmamiWebsiteId,
             onTriggerTestNotification = {
                 notifPermission.request()
             },
@@ -755,16 +759,20 @@ private fun CampusGuideSection() {
 private fun DiagnosticsAndFcmDialog(
     fcmToken: String?,
     analyticsConsent: Boolean,
+    umamiWebsiteId: String,
     notifStatus: PermissionStatus,
     onToggleAnalytics: (Boolean) -> Unit,
+    onSaveUmamiWebsiteId: (String) -> Unit,
     onTriggerTestNotification: () -> Unit,
     onOpenSystemSettings: () -> Unit,
     onCopyToken: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var editedUmamiId by rememberSaveable(umamiWebsiteId) { mutableStateOf(umamiWebsiteId) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Notifications Push FCM & RGPD") },
+        title = { Text("Notifications FCM & Analytics (Umami / RGPD)") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
@@ -810,6 +818,22 @@ private fun DiagnosticsAndFcmDialog(
                         checked = analyticsConsent,
                         onCheckedChange = onToggleAnalytics
                     )
+                }
+
+                OutlinedTextField(
+                    value = editedUmamiId,
+                    onValueChange = { editedUmamiId = it },
+                    label = { Text("🌿 Umami Website ID (cloud.umami.is)") },
+                    placeholder = { Text("ex: 9f8e7d6c-5b4a-...") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedButton(
+                    onClick = { onSaveUmamiWebsiteId(editedUmamiId) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("🌿 Enregistrer & Envoyer un test Umami")
                 }
 
                 AssistChip(
