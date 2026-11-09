@@ -422,10 +422,14 @@ class ItemsViewModel(
     }
 
     fun saveUmamiWebsiteId(websiteId: String) = viewModelScope.launch {
-        settings.saveUmamiConfig(websiteId)
-        if (websiteId.isNotBlank()) {
-            analytics.logScreenView(AnalyticsTracker.SCREEN_ITEMS_LIST, "ItemsListScreen")
-            showMessage("🌿 Umami configuré ! Événement de test envoyé à cloud.umami.is")
+        val clean = websiteId.trim()
+        settings.saveUmamiConfig(clean)
+        if (clean.isNotBlank()) {
+            // Active automatiquement le consentement analytics si ce n'etait pas encore fait
+            settings.setAnalyticsConsent(true)
+            analytics.setCollectionEnabled(true)
+            val (_, statusMsg) = analytics.sendTestEventToUmami(clean)
+            showMessage(statusMsg)
         } else {
             showMessage("Umami désactivé")
         }

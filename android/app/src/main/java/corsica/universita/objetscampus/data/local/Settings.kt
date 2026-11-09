@@ -46,7 +46,7 @@ class Settings(private val context: Context) {
     }
 
     companion object {
-        const val DEFAULT_UMAMI_ENDPOINT = "https://cloud.umami.is/api/send"
+        const val DEFAULT_UMAMI_ENDPOINT = "https://gateway.umami.is/api/send"
     }
 
     fun wasPermissionAsked(permissionId: String): Flow<Boolean> {

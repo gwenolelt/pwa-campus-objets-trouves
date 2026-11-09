@@ -242,6 +242,60 @@ class AnalyticsTracker(context: Context) {
         }
     }
 
+    /**
+     * Envoi d'un test direct vers Umami (appele depuis le bouton "Enregistrer & Envoyer un test Umami")
+     * et retourne le code HTTP exact (200 = recu par Umami, 404 = Website ID inexistant, etc.).
+     */
+    suspend fun sendTestEventToUmami(websiteId: String): Pair<Boolean, String> =
+        kotlinx.coroutines.withContext(Dispatchers.IO) {
+            val cleanId = websiteId.trim()
+            if (cleanId.isBlank()) {
+                return@withContext false to "Website ID vide"
+            }
+            val endpoint = settings.umamiEndpoint.first().trim()
+                .ifBlank { Settings.DEFAULT_UMAMI_ENDPOINT }
+
+            val bodyJson = buildJsonObject {
+                put("type", "event")
+                put(
+                    "payload",
+                    buildJsonObject {
+                        put("website", cleanId)
+                        put("hostname", BuildConfig.PWA_HOST)
+                        put("screen", "1080x2400")
+                        put("language", "fr-FR")
+                        put("title", "Android · items_list")
+                        put("url", "/android/items_list")
+                    }
+                )
+            }.toString()
+
+            return@withContext runCatching {
+                val req = Request.Builder()
+                    .url(endpoint)
+                    .header("Content-Type", "application/json")
+                    .header("x-umami-website-id", cleanId)
+                    .header("x-umami-hostname", BuildConfig.PWA_HOST)
+                    .header(
+                        "User-Agent",
+                        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
+                    )
+                    .post(bodyJson.toRequestBody("application/json".toMediaType()))
+                    .build()
+
+                httpClient.newCall(req).execute().use { resp ->
+                    Log.d(TAG, "Umami TEST POST $endpoint -> HTTP ${resp.code}")
+                    if (resp.isSuccessful) {
+                        true to "✅ Umami HTTP ${resp.code} : Événement bien reçu par Umami !"
+                    } else {
+                        false to "❌ Umami a répondu HTTP ${resp.code} (vérifiez l'UUID du Website ID)"
+                    }
+                }
+            }.getOrElse { e ->
+                false to "❌ Erreur réseau vers Umami : ${e.localizedMessage ?: "injoignable"}"
+            }
+        }
+
     private fun postUmamiPayload(endpoint: String, jsonPayload: String): Boolean {
         return runCatching {
             val req = Request.Builder()
