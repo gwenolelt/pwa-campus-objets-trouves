@@ -3,3 +3,14 @@ node_modules/
 *.log
 .env
 .netlify/
+
+# Android exclusions (secrets & build artifacts)
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/local.properties
+local.properties
+*.jks
+*.keystore
+*.iml

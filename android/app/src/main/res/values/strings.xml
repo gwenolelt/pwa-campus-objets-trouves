@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Objets Trouvés Campus</string>
+    <string name="widget_title">Objets Trouvés Campus</string>
+    <string name="widget_description">Affiche le nombre d\'objets trouvés à récupérer sur le campus et permet de déclarer ou scanner en 1 tap.</string>
+    <string name="shortcut_declare_short">Déclarer</string>
+    <string name="shortcut_declare_long">Déclarer un objet trouvé</string>
+    <string name="shortcut_scan_short">Scanner QR/Code</string>
+    <string name="shortcut_scan_long">Scanner un code-barres ou QR campus</string>
+    <string name="tile_label">Objet Trouvé</string>
+</resources>

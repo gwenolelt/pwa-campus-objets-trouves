@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "corsica.universita.objetscampus",
+      "sha256_cert_fingerprints": [
+        "82:01:94:70:3F:33:94:FB:B0:2F:7C:82:04:53:A9:3C:EE:4B:5A:08:BF:45:86:7E:70:9F:41:6A:DC:B2:E4:F1",
+        "FE:A4:CC:E9:6C:AF:C4:90:B2:36:BE:5E:8B:6E:65:64:01:60:91:31:EB:4F:10:7B:89:9E:18:70:29:8A:F6:1B"
+      ]
+    }
+  }
+]

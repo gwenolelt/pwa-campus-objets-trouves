@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "104829104829",
+    "project_id": "objets-campus-corsica",
+    "storage_bucket": "objets-campus-corsica.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:104829104829:android:8f9a2b3c4d5e6f708192a3",
+        "android_client_info": {
+          "package_name": "corsica.universita.objetscampus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDummyKeyForCourseProjectObjetsCampus123"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
